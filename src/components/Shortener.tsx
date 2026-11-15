@@ -36,7 +36,7 @@ function ShortenerInner({ onReset }: { onReset: () => void }) {
             placeholder="https://ejemplo.com/una/direccion/muy/larga"
             aria-invalid={state.error ? true : undefined}
             aria-describedby={state.error ? "url-error" : undefined}
-            className="h-14 min-w-0 flex-1 rounded-lg border-2 border-line bg-white px-4 font-mono text-sm placeholder:text-muted/60 focus:border-teal focus:outline-none"
+            className="h-14 w-full min-w-0 rounded-lg sm:flex-1 border-2 border-line bg-white px-4 font-mono text-sm placeholder:text-muted/60 focus:border-teal focus:outline-none"
           />
           <button
             type="submit"

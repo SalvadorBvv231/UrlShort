@@ -1,36 +1,40 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Recorta
 
-## Getting Started
+Acortador de enlaces — proyecto de Programación Web (UVAQ).
+Pega una dirección larga y obtén un enlace corto, con QR, historial y conteo de clics.
 
-First, run the development server:
+**Stack:** Next.js (App Router, TypeScript, Tailwind) · Prisma + `@prisma/adapter-pg` · Neon Postgres · Vercel.
+
+## Funciones
+
+- Acortar enlaces (códigos base62 de 5 caracteres, `node:crypto`) con validación http/https.
+- Copiar el enlace y código QR (`qrcode`).
+- `/[code]` redirige con 307 y suma un clic de forma atómica; 404 amigable.
+- `/mis-enlaces`: historial del visitante (cookie anónima), búsqueda, copiar y eliminar.
+- Diseño adaptable a computadora y celular.
+
+## Cómo correrlo
 
 ```bash
+npm install                 # también ejecuta `prisma generate` (postinstall)
+cp .env.example .env        # y pega tus cadenas de Neon
+npx prisma migrate deploy   # aplica las migraciones
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Variables de entorno (ver `.env.example`):
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+| Variable       | Uso                                                              |
+| -------------- | ---------------------------------------------------------------- |
+| `DATABASE_URL` | Conexión **con pooler** de Neon (la usa la app en ejecución).    |
+| `DIRECT_URL`   | Conexión **directa** de Neon (la usa el CLI de Prisma / migrate). |
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Propiedad de los enlaces (sin login)
 
-## Learn More
+En la primera visita `src/proxy.ts` crea una cookie anónima `recorta_owner` (UUID, `httpOnly`, `sameSite=lax`,
+`secure` en producción). Cada enlace guarda ese `ownerId`; «Mis enlaces» solo muestra los del dueño y eliminar
+se valida en el servidor.
 
-To learn more about Next.js, take a look at the following resources:
+## Participantes
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Salvador Bustamante Garnica · Ángel Fernando González Alemán

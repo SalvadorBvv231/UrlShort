@@ -18,7 +18,7 @@ export function ResultCard({ result, onReset }: { result: ShortenResult; onReset
         </div>
         <p
           data-testid="short-link"
-          className="marker mt-4 inline-block max-w-full break-all px-2 font-mono text-3xl font-bold sm:text-4xl"
+          className="marker mt-4 inline-block max-w-full break-all px-2 font-mono text-xl font-bold min-[400px]:text-2xl sm:text-4xl"
         >
           {result.display}
         </p>
