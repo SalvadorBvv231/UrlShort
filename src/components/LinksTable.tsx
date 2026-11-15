@@ -62,6 +62,18 @@ function DeleteButton({ id, onError }: { id: string; onError: (message: string) 
   );
 }
 
+function RowActions({ link, origin, onError }: { link: LinkRow; origin: string; onError: (m: string) => void }) {
+  return (
+    <span className="inline-flex items-center gap-2">
+      <CopyButton
+        text={`${origin}/${link.code}`}
+        className={`${btn} min-w-[4.5rem] border-line bg-white hover:border-teal`}
+      />
+      <DeleteButton id={link.id} onError={onError} />
+    </span>
+  );
+}
+
 export function LinksTable({ links, origin, host }: { links: LinkRow[]; origin: string; host: string }) {
   const [query, setQuery] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -91,7 +103,7 @@ export function LinksTable({ links, origin, host }: { links: LinkRow[]; origin: 
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Buscar enlace"
           autoComplete="off"
-          className="h-12 min-w-0 flex-1 rounded-lg border-2 border-line bg-white px-4 text-sm placeholder:text-muted/70 focus:border-teal focus:outline-none sm:max-w-80"
+          className="h-12 w-full min-w-0 rounded-lg border-2 border-line bg-white px-4 text-sm sm:flex-1 placeholder:text-muted/70 focus:border-teal focus:outline-none sm:max-w-80"
         />
         <Link
           href="/"
@@ -114,8 +126,8 @@ export function LinksTable({ links, origin, host }: { links: LinkRow[]; origin: 
       ) : filtered.length === 0 ? (
         <p className="mt-12 text-muted">No hay enlaces que coincidan con «{query.trim()}».</p>
       ) : (
-        <div className="mt-8 overflow-x-auto">
-          <table className="w-full min-w-[44rem] border-collapse text-left text-sm">
+        <div className="mt-8 hidden md:block">
+          <table className="w-full border-collapse text-left text-sm">
             <thead>
               <tr className="border-b-2 border-line text-muted">
                 <th className="px-3 pb-3 font-normal">Enlace corto</th>
@@ -143,19 +155,40 @@ export function LinksTable({ links, origin, host }: { links: LinkRow[]; origin: 
                   <td className="px-3 py-4 text-right font-bold">{l.clicks}</td>
                   <td className="whitespace-nowrap px-3 py-4">{l.created}</td>
                   <td className="whitespace-nowrap px-3 py-4 text-right">
-                    <span className="inline-flex items-center gap-2">
-                      <CopyButton
-                        text={`${origin}/${l.code}`}
-                        className={`${btn} min-w-[4.5rem] border-line bg-white hover:border-teal`}
-                      />
-                      <DeleteButton id={l.id} onError={setError} />
-                    </span>
+                    <RowActions link={l} origin={origin} onError={setError} />
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
+      )}
+
+      {/* Móvil: tarjetas en lugar de tabla */}
+      {filtered.length > 0 && (
+        <ul className="mt-6 divide-y divide-line/70 border-y border-line/70 md:hidden">
+          {filtered.map((l) => (
+            <li key={l.id} className="py-4" data-testid="card">
+              <a
+                href={`/${l.code}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-mono text-sm font-medium hover:text-teal"
+              >
+                {host}/{l.code}
+              </a>
+              <p className="mt-1 truncate text-sm text-muted" title={l.url}>
+                {shortDestination(l.url)}
+              </p>
+              <p className="mt-2 text-sm">
+                <strong>{l.clicks}</strong> {l.clicks === 1 ? "clic" : "clics"} · {l.created}
+              </p>
+              <div className="mt-3">
+                <RowActions link={l} origin={origin} onError={setError} />
+              </div>
+            </li>
+          ))}
+        </ul>
       )}
     </div>
   );
