@@ -37,4 +37,6 @@ se valida en el servidor.
 
 ## Participantes
 
-Salvador Bustamante Garnica · Ángel Fernando González Alemán
+Desarrollado por Salvador Bustamante Garnica.
+
+El proyecto se planeó originalmente en pareja con Ángel Fernando González Alemán, quien dejó el proyecto.
