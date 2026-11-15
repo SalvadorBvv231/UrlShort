@@ -1,10 +1,11 @@
 "use server";
 
+import { revalidatePath } from "next/cache";
 import QRCode from "qrcode";
 import { Prisma } from "@/generated/prisma/client";
 import { generateCode } from "@/lib/code";
 import { getOrigin } from "@/lib/origin";
-import { getOrCreateOwnerId } from "@/lib/owner";
+import { getOrCreateOwnerId, getOwnerId } from "@/lib/owner";
 import { prisma } from "@/lib/prisma";
 import { validateUrl } from "@/lib/url";
 
@@ -68,4 +69,26 @@ export async function createLink(_prev: ShortenState, formData: FormData): Promi
   }
 
   return { error: "No pudimos generar un código único. Intenta de nuevo.", value: raw };
+}
+
+export type DeleteState = { ok: boolean; error?: string };
+
+/** Elimina un enlace solo si pertenece al dueño de la cookie (verificado en el servidor, en la propia consulta). */
+export async function deleteLink(id: string): Promise<DeleteState> {
+  const ownerId = await getOwnerId();
+  if (!ownerId || typeof id !== "string") {
+    return { ok: false, error: "No pudimos verificar que este enlace sea tuyo." };
+  }
+
+  try {
+    // El filtro por ownerId va dentro del DELETE: si no es tuyo, no borra nada.
+    const { count } = await prisma.link.deleteMany({ where: { id, ownerId } });
+    if (count === 0) return { ok: false, error: "No se encontró el enlace o no te pertenece." };
+  } catch (error) {
+    console.error("deleteLink falló:", error);
+    return { ok: false, error: "No pudimos eliminar el enlace. Intenta de nuevo." };
+  }
+
+  revalidatePath("/mis-enlaces");
+  return { ok: true };
 }
