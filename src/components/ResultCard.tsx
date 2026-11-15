@@ -20,7 +20,8 @@ export function ResultCard({ result, onReset }: { result: ShortenResult; onReset
           data-testid="short-link"
           className="marker mt-4 inline-block max-w-full break-all px-2 font-mono text-xl font-bold min-[400px]:text-2xl sm:text-4xl"
         >
-          {result.display}
+          {result.display.slice(0, -(result.code.length + 1))}
+          <span className="whitespace-nowrap">/{result.code}</span>
         </p>
 
         <div className="mt-8 flex flex-col gap-3 sm:flex-row">
