@@ -1,5 +1,6 @@
 "use server";
 
+import QRCode from "qrcode";
 import { Prisma } from "@/generated/prisma/client";
 import { generateCode } from "@/lib/code";
 import { getOrigin } from "@/lib/origin";
@@ -14,6 +15,8 @@ export type ShortenResult = {
   shortUrl: string;
   /** Enlace para mostrar, sin protocolo (host/código). */
   display: string;
+  /** Código QR del enlace corto, como data URL (PNG). */
+  qr: string;
 };
 
 export type ShortenState = {
@@ -44,13 +47,15 @@ export async function createLink(_prev: ShortenState, formData: FormData): Promi
     const code = generateCode();
     try {
       await prisma.link.create({ data: { code, url: check.url, ownerId } });
+      const shortUrl = `${origin}/${code}`;
+      const qr = await QRCode.toDataURL(shortUrl, {
+        width: 320,
+        margin: 1,
+        errorCorrectionLevel: "M",
+        color: { dark: "#13203f", light: "#ffffff" },
+      });
       return {
-        result: {
-          code,
-          original: check.url,
-          shortUrl: `${origin}/${code}`,
-          display: `${host}/${code}`,
-        },
+        result: { code, original: check.url, shortUrl, display: `${host}/${code}`, qr },
       };
     } catch (error) {
       const collision =
